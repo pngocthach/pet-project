@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grid</title>
+
+    <style>
+      /* * {
+        margin: 0;
+        border: 0;
+      } */
+
+      .square {
+        border: 1px solid #000;
+
+        -webkit-user-drag: none;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+
+      .square:nth-child(n + 2) {
+        margin-left: -1px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="width wrapper">
+      <div class="slider">
+        <label for="width-range">Grid width</label>
+        <input type="range" id="width-range" value="0" />
+        <span id="width-value">0</span>
+      </div>
+    </div>
+
+    <div class="height wrapper">
+      <div class="slider">
+        <label for="width-range">Grid height</label>
+        <input type="range" id="height-range" value="0" />
+        <span id="height-value">0</span>
+      </div>
+    </div>
+
+    <div>
+      <label for="favcolor">Select your favorite color:</label>
+      <input type="color" id="favcolor" name="favcolor" value="#ff0000" />
+    </div>
+
+    <button id="create-btn">Create</button>
+    <button id="clear-btn">Clear</button>
+    <div class="grid"></div>
+  </body>
+
+  <script>
+    const widthEl = document.querySelector("#width-range");
+    const widthValEl = document.querySelector("#width-value");
+    widthEl.onchange = (e) => {
+      widthValEl.innerText = e.target.value;
+    };
+
+    const heightEl = document.querySelector("#height-range");
+    const heightValEl = document.querySelector("#height-value");
+    heightEl.onchange = (e) => {
+      heightValEl.innerText = e.target.value;
+    };
+
+    const colorEl = document.querySelector("#favcolor");
+
+    const createBtn = document.querySelector("#create-btn");
+
+    const clearBtn = document.querySelector("#clear-btn");
+
+    const grid = document.querySelector("body > div.grid");
+
+    function square() {
+      return `<div onmouseenter="handleSquareClick(this)" draggable="false" class="square" style="margin: 0;display: flex; height: 20px; width: 20px; background-color: #ffffff"></div>`;
+    }
+
+    let isPainted = false;
+    function handleSquareClick(el) {
+      //  el.style.backgroundColor = colorEl.value;
+      onmousedown = () => {
+        el.style.backgroundColor = colorEl.value;
+        isPainted = true;
+        console.log(isPainted);
+      };
+      onmouseup = () => {
+        isPainted = false;
+        console.log(isPainted);
+      };
+      if (isPainted) el.style.backgroundColor = colorEl.value;
+    }
+
+    function generateWidth() {
+      let res = "";
+      for (let i = 0; i < widthEl.value; i++) {
+        res += square();
+      }
+      return res;
+    }
+
+    function generateGrid() {
+      let res = "";
+      for (let i = 0; i < heightEl.value; i++) {
+        res += `<div style="margin: 0; border:0; display:flex"> ${generateWidth(
+          i + 200
+        )} </div>`;
+      }
+      return res;
+    }
+
+    createBtn.onclick = () => {
+      grid.innerHTML = `${generateGrid()}`;
+    };
+
+    clearBtn.onclick = () => {
+      grid.innerHTML = "";
+    };
+  </script>
+</html>
