@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Xep lich</title>
+    <style></style>
+  </head>
+  <body>
+    <div>
+      <label for="course">Mã môn:</label>
+      <input type="text" id="course" />
+    </div>
+    <div><label>Mã lớp:</label> <input type="text" id="class" value="" /></div>
+    <div>
+      <label>Tên môn:</label> <input type="text" id="course-name" value="" />
+    </div>
+    <div>
+      <label>Tiết bắt đầu</label> <input type="text" id="start" value="" />
+    </div>
+    <div>
+      <label>Tiết kết thúc</label>
+      <input type="text" id="end" />
+    </div>
+    <button id="add">Thêm</button>
+    <button id="submit">xếp</button>
+    <div class="class-list"></div>
+    <div class="error" style="display: none">nhap du vao ik</div>
+    <script>
+      const addBtn = document.querySelector("#add");
+      const submitBtn = document.querySelector("#submit");
+      const classList = document.querySelector(".class-list");
+      const classEl = document.querySelector("#class");
+      const course = document.querySelector("#course");
+      const name = document.querySelector("#course-name");
+      const start = document.querySelector("#start");
+      const end = document.querySelector("#end");
+      const errEl = document.querySelector(".error");
+
+      addBtn.onclick = () => {
+        if (
+          !classEl.value ||
+          !course.value ||
+          !name.value ||
+          !start.value ||
+          !end.value
+        ) {
+          errEl.style.display = "block";
+        } else {
+          errEl.style.display = "none";
+          let newClass = document.createElement("div");
+          newClass.innerText = course.value + " " + classEl.value;
+          classList.appendChild(newClass);
+          let delBut = document.createElement("button");
+          delBut.innerText = "xoa";
+          newClass.appendChild(delBut);
+          delBut.onclick = () => {
+            classList.removeChild(newClass);
+          };
+        }
+      };
+
+      let courses = {
+        INT3105: [{ id: "INT3105 20", day: 7, start: 4, end: 6 }],
+        INT3110E: [
+          // { id: "INT3110E 20", day: 6, start: 10, end: 12 },
+          { id: "INT3110E 21", day: 2, start: 10, end: 12 },
+          // { id: "INT3110E 22", day: 2, start: 3, end: 5 },
+        ],
+        INT3117: [
+          { id: "INT3117 20", day: 7, start: 7, end: 9 },
+          { id: "INT3117 21", day: 5, start: 10, end: 12 },
+        ],
+        INT3133: [{ id: "INT3105 20", day: 5, start: 4, end: 6 }],
+        INT3111E: [
+          { id: "INT3111E 20", day: 6, start: 7, end: 9 },
+          { id: "INT3111E 21", day: 3, start: 7, end: 9 },
+        ],
+        INT2044E: [
+          { id: "INT2044E 23", day: 2, start: 7, end: 9 },
+          { id: "INT2044E 21", day: 7, start: 4, end: 6 },
+          { id: "INT2044E 22", day: 2, start: 10, end: 12 },
+        ],
+        INT3121: [{ id: "INT3121 20", day: 3, start: 7, end: 9 }],
+      };
+
+      function selectSchedule(courses) {
+        //n là độ dài obj => là số môn học
+        const n = Object.keys(courses).length;
+
+        //tạo mảng slots rỗng
+        const slots = Array.from({ length: n }, () => []);
+
+        //tạo hàm để đệ quy
+        function helper(i, slots) {
+          // khi i bằng độ dài mảng thì ngừng đệ quy, trả về slots
+          if (i === n) {
+            return [...slots];
+          }
+
+          // i là số lớp học
+          // Lặp qua từng phần tử trong mảng con => lặp qua các lớp học trong khóa học
+          for (let j = 0; j < courses[Object.keys(courses)[i]].length; j++) {
+            // khởi tạo flag để check trùng
+            let conflict = false;
+
+            // check từ môn đầu tiên đến môn hiện tại (môn thứ i)
+            for (let k = 0; k < i; k++) {
+              if (
+                // nếu trùng ngày
+                slots[k][slots[k].length - 1].day ===
+                  courses[Object.keys(courses)[i]][j].day &&
+                // và trùng giờ học
+                Math.max(
+                  slots[k][slots[k].length - 1].start,
+                  courses[Object.keys(courses)[i]][j].start
+                ) <
+                  Math.min(
+                    slots[k][slots[k].length - 1].end,
+                    courses[Object.keys(courses)[i]][j].end
+                  ) +
+                    1
+              ) {
+                // cho flag thành true
+                conflict = true;
+                break;
+              }
+            }
+
+            // nếu mà không trùng
+            if (!conflict) {
+              // thêm lớp vào trong mảng slots
+              slots[i].push(courses[Object.keys(courses)[i]][j]);
+
+              // gọi đệ quy tiếp với môn học sau (môn i+1)
+              const result = helper(i + 1, slots);
+
+              // nếu mà không result không null => không conflict => trả về result
+              if (result) {
+                return result;
+              }
+
+              // conflict => đẩy cái i ra =>
+              slots[i].pop();
+            }
+          }
+          // return null nếu conflict
+          return null;
+        }
+
+        return helper(0, slots);
+      }
+
+      console.log(selectSchedule(courses));
+    </script>
+  </body>
+</html>
